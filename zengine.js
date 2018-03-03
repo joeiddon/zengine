@@ -48,7 +48,7 @@ The wireframe parameter is simply a boolean.
 
 var zengine = {
     render: function(world, cam, canvas, wireframe){
-        var ctx = canvas.getContext("2d");
+        let ctx = canvas.getContext("2d");
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
         //order the faces in the world (furthest to closest)
@@ -56,7 +56,7 @@ var zengine = {
                                              this.distance(this.centroid(a.verts), cam));
 
         //iterate over each of the faces in the owrld
-        for (var f = 0; f < world.length; f++){
+        for (let f = 0; f < world.length; f++){
             //only render the face if some of the coords are in front of the camera;
             //determined with dot product between cam and cam --> coord vectors (if > 0,
             //means angle > 90deg i.e. behind camera)
@@ -68,18 +68,18 @@ var zengine = {
                           }) < 0)) continue;
 
             //align 3d coordinates to camera view angle
-            var acs = world[f].verts.map(this.translate(-cam.x, -cam.y, -cam.z))
+            let acs = world[f].verts.map(this.translate(-cam.x, -cam.y, -cam.z))
                                     .map(this.z_axis_rotate(this.to_rad(cam.yaw)))
                                     .map(this.y_axis_rotate(this.to_rad(cam.roll)))
                                     .map(this.x_axis_rotate(this.to_rad(cam.pitch)))
                                     .map(this.translate(cam.x, cam.y, cam.z));
 
             //convert the 3d coordinates to yaw, pitch angles from cam center line
-            var cas = acs.map(c => ({y: this.to_deg(Math.atan2(c.x - cam.x, c.y - cam.y)),
+            let cas = acs.map(c => ({y: this.to_deg(Math.atan2(c.x - cam.x, c.y - cam.y)),
                                      p: this.to_deg(Math.atan2(c.z - cam.z, c.y - cam.y))}));
 
             //convert angles to 2dcanvas coordinates
-            var cos = cas.map(a => ({x: canvas.width/2  + (a.y * (canvas.width/cam.fov)),
+            let cos = cas.map(a => ({x: canvas.width/2  + (a.y * (canvas.width/cam.fov)),
                                      y: canvas.height/2 - (a.p * (canvas.width/cam.fov))}));
 
             //draw the face on the canvas
@@ -97,9 +97,9 @@ var zengine = {
     },
 
     centroid: function(verts){
-        var l = verts.length;
-        var c = {x: 0, y: 0, z: 0};
-	    for (var i = 0; i < l; i++)
+        let l = verts.length;
+        let c = {x: 0, y: 0, z: 0};
+	    for (let i = 0; i < l; i++)
         for (let k in c) c[k] += verts[i][k];
 	    return {x: c.x/l, y: c.y/l, z: c.z/l};
     },

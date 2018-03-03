@@ -27,9 +27,8 @@ var ctx = cnvs.getContext("2d");
 function fitToScreen(){
     cnvs.width = innerWidth;
     cnvs.height = innerHeight;
+    update();
 }
-fitToScreen();
-window.addEventListener("resize", fitToScreen);
 
 //gives the 3d coordinate on the unit sphere at yaw and pitch angles
 function circleCoord(y, p){
@@ -72,7 +71,9 @@ function update(){
     draw_cp();
 }
 
-update();
+
+fitToScreen();
+window.addEventListener("resize", fitToScreen);
 
 function rot_func(){
     ball = ball.map(o=>({verts: o.verts.map(zengine.z_axis_rotate(vx)).map(zengine.x_axis_rotate(vy)), col: o.col}));

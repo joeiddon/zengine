@@ -8,7 +8,7 @@
  GitHub Repository:
  https://github.com/RoadKillCat/3dSimulationVR/
  
- Authors website:
+ Author's website:
  http://joeiddon.me/
 */
 
@@ -38,7 +38,7 @@ This can be seen in a general-case format.
     cam = {x: ,y: ,z: ,yaw: ,pitchi: ,roll: ,fov: }
 
 The canvas is simply a HTML Canvas Element Object.
-WARNING: calling this funciton will blank the canvas before drawing
+WARNING: calling this function will blank the canvas before drawing
          to it.
 
 The wireframe parameter is simply a boolean.

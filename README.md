@@ -35,13 +35,13 @@ world = [{verts: [{x: ,y: ,z: }, {x: ,y: ,z: }, ...], col: }, ...]
 
 The cam is merely an object, described by this table:
 
-attribute | meaning
+Attribute | Meaning
 ------- | -------------------------------------
-x, y, z | cooridinate in 3D Cartesian Geometry,
-yaw     | rotation left to right,
-pitch   | rotation up and down,
-roll    | rotation about the "forward" axis,
-fov     | the, horizontal, field of view, in degrees.
+`x`, `y`, `z` | cooridinate in 3D Cartesian Geometry,
+`yaw`         | rotation left to right,
+`pitch`       | rotation up and down,
+`roll`        | rotation about the "forward" axis,
+`fov`         | the, horizontal, field of view, in degrees.
 
 This can be seen in the following general-case format.
 

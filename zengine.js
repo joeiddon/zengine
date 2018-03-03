@@ -51,11 +51,22 @@ var zengine = {
         var ctx = canvas.getContext("2d");
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        //order the faces in the world **furthest to closest**
+        //order the faces in the world (furthest to closest)
         if (!wireframe) world.sort((a, b) => this.distance(this.centroid(b.verts), cam) -
                                              this.distance(this.centroid(a.verts), cam));
 
+        //iterate over each of the faces in the owrld
         for (var f = 0; f < world.length; f++){
+            //only render the face if some of the coords are in front of the camera;
+            //determined with dot product between cam and cam --> coord vectors (if > 0,
+            //means angle > 90deg i.e. behind camera)
+            if (world[f].verts.every(c =>
+            this.dot_prod({x: c.x - cam.x, y: c.y - cam.y, z: c.z - cam.z},
+                          {x: Math.sin(this.to_rad(cam.yaw)) * Math.cos(this.to_rad(cam.pitch)),
+                           y: Math.cos(this.to_rad(cam.yaw)) * Math.cos(this.to_rad(cam.pitch)),
+                           z: Math.sin(this.to_rad(cam.pitch))
+                          }) < 0)) continue;
+
             //align 3d coordinates to camera view angle
             var acs = world[f].verts.map(this.translate(-cam.x, -cam.y, -cam.z))
                                     .map(this.z_axis_rotate(this.to_rad(cam.yaw)))
@@ -71,16 +82,13 @@ var zengine = {
             var cos = cas.map(a => ({x: canvas.width/2  + (a.y * (canvas.width/cam.fov)),
                                      y: canvas.height/2 - (a.p * (canvas.width/cam.fov))}));
 
-            //if (!cos.some(c => this.on_screen(c, cnvs.width, cnvs.height))) continue;
-
             //draw the face on the canvas
+            ctx.strokeStyle = wireframe ? "white" : "black";
             ctx.beginPath(cos[0].x, cos[0].y);
             for (let i = 0; i < cos.length; i++){
                 ctx.lineTo(cos[i].x, cos[i].y);
             }
-            ctx.closePath();
-            ctx.strokeStyle = wireframe ? "white" : "black";
-            ctx.stroke();
+            ctx.closePath(); ctx.stroke();
             if (!wireframe){
                 ctx.fillStyle = world[f].col;
                 ctx.fill();
@@ -96,7 +104,6 @@ var zengine = {
 	    return {x: c.x/l, y: c.y/l, z: c.z/l};
     },
 
-    on_screen: (c, w, h) => c.x > 0 && c.y > 0 && c.x < w && c.y < h,
     dot_prod: (v1, v2) => v1.x * v2.x + v1.y * v2.y + v1.z * v2.z,
     translate: (x, y, z) => (v => ({x: v.x + x, y: v.y + y, z: v.z + z})),
     distance: (c1, c2) => Math.sqrt(Math.pow(c2.x - c1.x , 2) + Math.pow(c2.y - c1.y , 2) + Math.pow(c2.z - c1.z , 2)),
@@ -105,4 +112,4 @@ var zengine = {
     z_axis_rotate: (r) => (v => ({x: v.x * Math.cos(r) - v.y * Math.sin(r),  y: v.x * Math.sin(r) + v.y * Math.cos(r),  z:  v.z})                                  ),
     to_deg: (r) => r * (180 / Math.PI),
     to_rad: (d) => d * (Math.PI / 180)
-}
+};

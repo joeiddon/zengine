@@ -1,7 +1,7 @@
 zengine.js
 ==========
 
-### A JavaScript 3D Rendering Engine ###
+#### A JavaScript 3D Rendering Engine ####
 
 There are many JavaScript 3D libraries out there, such as [three.js](https://threejs.org/), but I wanted to challenge myself to write the neatest, most simple code that accomplishes a similar result. Ignoring comments, all the code that was necessary to create this to it's current level is under 100 lines!
 
@@ -13,17 +13,19 @@ Simply include the source in your application's HTML, no downloading required:
 <script src="http://joeiddon.me/zengine/zengine.js"></script>
 ```
 
-and you are ready to start using it.
-
 ### How to Use ###
 
-*N.B. The below was merely extracted from the source itself, the code is so short (and commented!), I highly reccommend you just read it!*
+*N.B. The below is nearly identical to that of the source itself, the code is so short (and commented) I highly reccommend you just read it!*
 
-The main function - ```zengine.render()```- renders a "world" from the perspective of a "cam" to a canvas, with a wireframe option.
+The main function - `zengine.render()` - renders a world from the perspective of a camera to a Canvas, with a wireframe option.
 
-The world is described by an array of faces.
-Each face is itself described by an object with attributes: "verts" for verticies and "col" for colour.
-The value of "verts" should be an array of coordinates - each described by an object with "x", "y" and "z" attributes (the values being floats or integers). The value of "col" should be a CSS color string.
+The `world` is described by an array of faces.
+
+Each face is itself described by an object with attributes: `verts` for verticies and `col` for colour.
+
+The value of `verts` should be an array of coordinates - each described by an object with `x`, `y` and `z` attributes (either floats or integers).
+
+The value of `col` should be a CSS color string.
 
 This can be summarised by the following general-case format.
 
@@ -31,22 +33,23 @@ This can be summarised by the following general-case format.
 world = [{verts: [{x: ,y: ,z: }, {x: ,y: ,z: }, ...], col: }, ...]
 ```
 
-The cam is merely an object with the following attributes:
+The cam is merely an object, described by this table:
 
- -  x, y, z  cooridinate in 3D Cartesian Geometry,
- -  yaw      rotation left to right,
- -  pitch    rotation up and down,
- -  roll     rotation about the "forward" axis,
- -  fov      the, horizontal, field of view, in degrees.
+x, y, z | cooridinate in 3D Cartesian Geometry,
+------- | -------------------------------------
+yaw     | rotation left to right,
+pitch   | rotation up and down,
+roll    | rotation about the "forward" axis,
+fov     | the, horizontal, field of view, in degrees.
 
 This can be seen in a general-case format.
 
 ```javascript 
-   cam = {x: ,y: ,z: ,yaw: ,pitchi: ,roll: ,fov: }
+cam = {x: ,y: ,z: ,yaw: ,pitch: ,roll: ,fov: }
 ```
 
-The canvas is simply a HTML Canvas Element Object.
+The `canvas` parameter should be a HTML Canvas Element Object.
 
-**WARNING: calling this function will blank the canvas before drawing to it.**
+*WARNING: calling this function will blank the canvas before drawing to it.*
 
-The wireframe parameter is simply a boolean.
+The wireframe parameter takes a boolean - indicating whether or not to draw just the outlines of each face. This also speeds up the rendering as face ordering is no longer required, and drawing to the Canvas is marginally faster.

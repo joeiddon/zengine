@@ -48,6 +48,9 @@ for (var y = 0; y < Math.PI * 2; y += segs){
     }
 }
 
+//general
+wireframe = true;
+
 //cam position
 var cam = {x:0, y:-5, z: 0, yaw: 0, pitch: 0, roll: 0, fov: 60};
 
@@ -64,10 +67,11 @@ var cp = {x: 90, y: 120, r: 80};
 //mouse down coordinate
 var mdc;
 
+//interval ID for rotating setInterval call
 var rot_int;
 
 function update(){
-    zengine.render(ball, cam, cnvs, true);
+    zengine.render(ball, cam, cnvs, wireframe);
     draw_cp();
 }
 

@@ -84,8 +84,9 @@ var zengine = {
 
             //draw the face on the canvas
             ctx.strokeStyle = wireframe ? "white" : "black";
-            ctx.beginPath(cos[0].x, cos[0].y);
-            for (let i = 0; i < cos.length; i++){
+            ctx.beginPath();
+            ctx.moveTo(cos[0].x, cos[0].y);
+            for (let i = 1; i < cos.length; i++){
                 ctx.lineTo(cos[i].x, cos[i].y);
             }
             ctx.closePath(); ctx.stroke();

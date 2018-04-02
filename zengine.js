@@ -14,14 +14,13 @@
 
 /*
 The main function - zengine.render() - renders
-a "world" from the perspective of a "cam" to a canvas, with
-a wireframe option.
+a 'world' from the perspective of a 'cam' to a canvas.
 
 The world is described by an array of faces. Each face is itself
-described by an object with attributes: "verts" for verticies and
-"col" for colour. The value of "verts" should be an array of
-coordinates - each described by an object with "x", "y" and "z"
-attributes (the values being floats or integers). The value of "col"
+described by an object with attributes: 'verts' for verticies and
+'col' for colour. The value of 'verts' should be an array of
+coordinates - each described by an object with 'x', 'y' and 'z'
+attributes (the values being floats or integers). The value of 'col'
 should be a CSS color string.
 
 This can be summarised by the following general-case format.
@@ -31,7 +30,7 @@ The cam is merely an object with the following attributes:
   x, y, z  cooridinate in 3D Cartesian Geometry,
   yaw      rotation left to right,
   pitch    rotation up and down,
-  roll     rotation about the "forward" axis,
+  roll     rotation about the 'forward' axis,
   fov      the, horizontal, field of view, in degrees.
 
 This can be seen in a general-case format.
@@ -41,19 +40,32 @@ The canvas is simply a HTML Canvas Element Object.
 WARNING: calling this function will blank the canvas before drawing
          to it.
 
-The wireframe parameter is simply a boolean.
+The wireframe parameter is simply a boolean/
+
+Horizon is a distance, in units relative to world, for how far you can see.
+The point of this is to speed up rendering, but if undefined, it is infinite.
 */
 
-"use strict";
+'use strict';
 
-var zengine = {
-    render: function(world, cam, canvas, wireframe){
-        let ctx = canvas.getContext("2d");
+let zengine = {
+    render: function(world, cam, canvas, wireframe, horizon){
+        let ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        world = world.slice(0);
         
-        //order the faces in the world (furthest to closest)
-        if (!wireframe) world.sort((a, b) => this.distance(this.centroid(b.verts), cam) -
-                                             this.distance(this.centroid(a.verts), cam));
+        //add a distance to cam attribute to each face for ordering
+        //and for removing those faces which are further than the vision horizon
+        for (var f = 0; f < world.length; f++){
+            world[f].dist = this.distance(cam, this.centroid(world[f].verts));
+        }
+
+        //remove faces past horizon
+        if (horizon) world = world.filter(f => f.dist < horizon);
+
+        //order the faces in the world (furthest to closest)`
+        if (!wireframe) world.sort((a, b) => b.dist - a.dist);
 
         //iterate over each of the faces in the owrld
         for (let f = 0; f < world.length; f++){
@@ -83,7 +95,7 @@ var zengine = {
                                      y: canvas.height/2 - (a.p * (canvas.width/cam.fov))}));
 
             //draw the face on the canvas
-            ctx.strokeStyle = wireframe ? "white" : "black";
+            ctx.strokeStyle = wireframe ? 'white' : 'black';
             ctx.beginPath();
             ctx.moveTo(cos[0].x, cos[0].y);
             for (let i = 1; i < cos.length; i++){

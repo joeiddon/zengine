@@ -1,49 +1,15 @@
 /*
- zengine.js - 3D Rending Software designed to work with the HTML5 Canvas
+ zengine.js - 3D Rendering Software designed to work with the HTML5 Canvas
  Copyright (c) 2018 Joe Iddon. All right reserved.
 
  This library is free software; you are free to redistribute it and/or
  modify it provided appropriate credit is given to the original author.
- 
+
  GitHub Repository:
  https://github.com/RoadKillCat/3dSimulationVR/
- 
+
  Author's website:
  http://joeiddon.me/
-*/
-
-/*
-The main function - zengine.render() - renders
-a 'world' from the perspective of a 'cam' to a canvas.
-
-The world is described by an array of faces. Each face is itself
-described by an object with attributes: 'verts' for verticies and
-'col' for colour. The value of 'verts' should be an array of
-coordinates - each described by an object with 'x', 'y' and 'z'
-attributes (the values being floats or integers). The value of 'col'
-should be a CSS color string.
-
-This can be summarised by the following general-case format.
-    world = [{verts: [{x: ,y: ,z: }, {x: ,y: ,z: }, ...], col: }, ...]
-
-The cam is merely an object with the following attributes:
-  x, y, z  cooridinate in 3D Cartesian Geometry,
-  yaw      rotation left to right,
-  pitch    rotation up and down,
-  roll     rotation about the 'forward' axis,
-  fov      the, horizontal, field of view, in degrees.
-
-This can be seen in a general-case format.
-    cam = {x: ,y: ,z: ,yaw: ,pitchi: ,roll: ,fov: }
-
-The canvas is simply a HTML Canvas Element Object.
-WARNING: calling this function will blank the canvas before drawing
-         to it.
-
-The wireframe parameter is simply a boolean/
-
-Horizon is a distance, in units relative to world, for how far you can see.
-The point of this is to speed up rendering, but if undefined, it is infinite.
 */
 
 'use strict';
@@ -54,7 +20,7 @@ let zengine = {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         world = world.slice(0);
-        
+
         //add a distance to cam attribute to each face for ordering
         //and for removing those faces which are further than the vision horizon
         for (var f = 0; f < world.length; f++){
@@ -112,9 +78,9 @@ let zengine = {
     centroid: function(verts){
         let l = verts.length;
         let c = {x: 0, y: 0, z: 0};
-	    for (let i = 0; i < l; i++)
+        for (let i = 0; i < l; i++)
         for (let k in c) c[k] += verts[i][k];
-	    return {x: c.x/l, y: c.y/l, z: c.z/l};
+        return {x: c.x/l, y: c.y/l, z: c.z/l};
     },
 
     dot_prod: (v1, v2) => v1.x * v2.x + v1.y * v2.y + v1.z * v2.z,

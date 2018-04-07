@@ -3,7 +3,7 @@ zengine.js
 
 #### A JavaScript 3D Rendering Engine
 
-There are many JavaScript 3D libraries out there, such as [three.js](https://threejs.org/), but I wanted to challenge myself to write the neatest, most simple code that accomplishes a similar result. Ignoring comments, all the code that was necessary to create this to it's current level is under 100 lines!
+There are many JavaScript 3D libraries out there, such as [three.js](https://threejs.org/), but I wanted to challenge myself to write the neatest, most simple code that accomplishes rendering objects in 3D to a 2D screen. Ignoring comments, all the code that was necessary to build this to its current funcitonality is under 100 lines!
 
 ---
 
@@ -31,13 +31,13 @@ render(world, cam, canvas, wireframe, horizon)
 
 - The `world` is described by an array of faces.
 
- - Each face is itself described by an object with attributes: `verts` for verticies and `col` for colour.
+Each face is itself described by an object with attributes:
 
- - The value of `verts` should be an array of coordinates - each described by an object with `x`, `y` and `z` attributes (either floats or integers).
+- `verts` - an array of coordinates each described by an object with `x`, `y` and `z` attributes (either floats or integers).
 
- - The value of `col` should be a CSS color string.
+- `col` - a CSS color string.
 
- This can be summarised by the following general-case format.
+This can be summarised by the following general-case format.
 
 ```javascript
 world = [{verts: [{x: ,y: ,z: }, {x: ,y: ,z: }, ...], col: }, ...]
@@ -53,7 +53,7 @@ Attribute | Meaning
 `roll`        | rotation about the "forward" axis,
 `fov`         | the, horizontal, field of view, in degrees.
 
- This can be seen in the following general-case format.
+This can be seen in the following general-case format.
 
 ```javascript 
 cam = {x: ,y: ,z: ,yaw: ,pitch: ,roll: ,fov: }
@@ -61,7 +61,7 @@ cam = {x: ,y: ,z: ,yaw: ,pitch: ,roll: ,fov: }
 
 - The `canvas` parameter should be a HTML Canvas Element Object.
 
- *WARNING: calling this function will blank the canvas before drawing to it.*
+*WARNING: calling this function will blank the canvas before drawing to it.*
 
 - The `wireframe` parameter takes a boolean indicating whether or not to draw just the outlines of each face. This also speeds up the rendering as face ordering is no longer required, and drawing to the Canvas is marginally faster.
 
@@ -73,10 +73,10 @@ cam = {x: ,y: ,z: ,yaw: ,pitch: ,roll: ,fov: }
 
 The [demo folder](https://github.com/RoadKillCat/zengine/tree/master/demos) contains example code. You can view the code either by cloning this whole repository with
 
-```
+```shell
 git clone https://github.com/RoadKillCat/zengine.git
 ```
 
 or viewing directly in the webapp.
 
-And to actually use each example just visit `http://joeiddon.me/zengine/demos/`.
+To actually use test out each example just visit http://joeiddon.me/zengine/demos.

@@ -79,4 +79,4 @@ git clone https://github.com/RoadKillCat/zengine.git
 
 or viewing directly in the webapp.
 
-To actually use test out each example just visit http://joeiddon.me/zengine/demos.
+To actually use each example just visit http://joeiddon.me/zengine/demos.

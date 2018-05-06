@@ -15,6 +15,13 @@ Simply include the source in your application's HTML, no downloading required:
 <script src='http://joeiddon.me/zengine/zengine.js'></script>
 ```
 
+or you can use the shorter `git.io` source:
+
+```html
+<script src='http://git.io/zengine.js'></script>
+```
+
+
 ---
 
 ### Usage

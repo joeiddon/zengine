@@ -19,31 +19,28 @@ let zengine = {
         let ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        world = world.slice(0);
-
         //add a distance to cam attribute to each face for ordering
         //and for removing those faces which are further than the vision horizon
         for (var f = 0; f < world.length; f++){
             world[f].dist = this.distance(cam, this.centroid(world[f].verts));
         }
 
-        //remove faces past horizon
-        if (horizon) world = world.filter(f => f.dist < horizon);
-
-        //order the faces in the world (furthest to closest)`
+        //order the faces in the world (furthest to closest)
         if (!wireframe) world.sort((a, b) => b.dist - a.dist);
 
-        //iterate over each of the faces in the owrld
+        //unit vector for cam
+        let cam_vect = {x: Math.sin(this.to_rad(cam.yaw)) * Math.cos(this.to_rad(cam.pitch)),
+                        y: Math.cos(this.to_rad(cam.yaw)) * Math.cos(this.to_rad(cam.pitch)),
+                        z: Math.sin(this.to_rad(cam.pitch))}
+
         for (let f = 0; f < world.length; f++){
             //only render the face if some of the coords are in front of the camera;
-            //determined with dot product between cam and cam --> coord vectors (if > 0,
+            //and the distance is less than the horizon
+            //determined with dot product between cam and cam --> coord vectors (if < 0,
             //means angle > 90deg i.e. behind camera)
-            if (world[f].verts.every(c =>
-            this.dot_prod({x: c.x - cam.x, y: c.y - cam.y, z: c.z - cam.z},
-                          {x: Math.sin(this.to_rad(cam.yaw)) * Math.cos(this.to_rad(cam.pitch)),
-                           y: Math.cos(this.to_rad(cam.yaw)) * Math.cos(this.to_rad(cam.pitch)),
-                           z: Math.sin(this.to_rad(cam.pitch))
-                          }) < 0)) continue;
+            if (world[f].verts.every(
+                c => this.dot_prod({x: c.x-cam.x, y: c.y-cam.y, z: c.z-cam.z}, cam_vect) < 0) ||
+                (horizon && world[f].dist > horizon)) continue;
 
             //align 3d coordinates to camera view angle
             let acs = world[f].verts.map(this.translate(-cam.x, -cam.y, -cam.z))
@@ -56,7 +53,7 @@ let zengine = {
             let cas = acs.map(c => ({y: this.to_deg(Math.atan2(c.x - cam.x, c.y - cam.y)),
                                      p: this.to_deg(Math.atan2(c.z - cam.z, c.y - cam.y))}));
 
-            //convert angles to 2dcanvas coordinates
+            //convert angles to 2d canvas coordinates
             let cos = cas.map(a => ({x: canvas.width/2  + (a.y * (canvas.width/cam.fov)),
                                      y: canvas.height/2 - (a.p * (canvas.width/cam.fov))}));
 

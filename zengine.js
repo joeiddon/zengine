@@ -19,6 +19,9 @@ let zengine = {
         let ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+        //temporary inclusion until all current uses are updated to include unit vects
+        let has_vects = world[0].vect != undefined;
+
         //add a distance to cam attribute to each face for ordering
         //and for removing those faces which are further than the vision horizon
         for (var f = 0; f < world.length; f++){
@@ -35,11 +38,10 @@ let zengine = {
 
         for (let f = 0; f < world.length; f++){
             //only render the face if some of the coords are in front of the camera;
+            //and is facing towards the camera
             //and the distance is less than the horizon
-            //determined with dot product between cam and cam --> coord vectors (if < 0,
-            //means angle > 90deg i.e. behind camera)
-            if (world[f].verts.every(
-                c => this.dot_prod({x: c.x-cam.x, y: c.y-cam.y, z: c.z-cam.z}, cam_vect) < 0) ||
+            if (world[f].verts.every(c => this.dot_prod({x: c.x-cam.x, y: c.y-cam.y, z: c.z-cam.z}, cam_vect) < 0) ||
+                (/*!wireframe &&*/ has_vects && this.dot_prod(cam_vect, world[f].vect) > 0) ||
                 (horizon && world[f].dist > horizon)) continue;
 
             //align 3d coordinates to camera view angle
@@ -66,7 +68,13 @@ let zengine = {
             }
             ctx.closePath(); ctx.stroke();
             if (!wireframe){
-                ctx.fillStyle = world[f].col;
+                if (has_vects){
+                    let c = world[f].col.split(',');
+                    c[2] = (parseInt(c[2]) * -this.dot_prod(cam_vect, world[f].vect)).toString() + '%)';
+                    ctx.fillStyle = c.join(',');
+                } else {
+                    ctx.fillStyle = world[f].col;
+                }
                 ctx.fill();
             }
         }
@@ -82,10 +90,16 @@ let zengine = {
 
     dot_prod: (v1, v2) => v1.x * v2.x + v1.y * v2.y + v1.z * v2.z,
     translate: (x, y, z) => (v => ({x: v.x + x, y: v.y + y, z: v.z + z})),
-    distance: (c1, c2) => Math.sqrt(Math.pow(c2.x - c1.x , 2) + Math.pow(c2.y - c1.y , 2) + Math.pow(c2.z - c1.z , 2)),
-    x_axis_rotate: (r) => (v => ({x: v.x,                                    y: v.y * Math.cos(r) + v.z * Math.sin(r),  z: -v.y * Math.sin(r) + v.z * Math.cos(r)})),
-    y_axis_rotate: (r) => (v => ({x: v.x * Math.cos(r) + v.z * Math.sin(r),  y: v.y,                                    z: -v.x * Math.sin(r) + v.z * Math.cos(r)})),
-    z_axis_rotate: (r) => (v => ({x: v.x * Math.cos(r) - v.y * Math.sin(r),  y: v.x * Math.sin(r) + v.y * Math.cos(r),  z:  v.z})                                  ),
     to_deg: (r) => r * (180 / Math.PI),
-    to_rad: (d) => d * (Math.PI / 180)
+    to_rad: (d) => d * (Math.PI / 180),
+    distance: (c1, c2) => Math.sqrt((c2.x - c1.x)**2 + (c2.y - c1.y)**2 + (c2.z - c1.z)**2),
+    x_axis_rotate: (r) => (v => ({x:  v.x,
+                                  y:  v.y * Math.cos(r) + v.z * Math.sin(r),
+                                  z: -v.y * Math.sin(r) + v.z * Math.cos(r)})),
+    y_axis_rotate: (r) => (v => ({x:  v.x * Math.cos(r) + v.z * Math.sin(r),
+                                  y:  v.y,
+                                  z: -v.x * Math.sin(r) + v.z * Math.cos(r)})),
+    z_axis_rotate: (r) => (v => ({x:  v.x * Math.cos(r) - v.y * Math.sin(r),
+                                  y:  v.x * Math.sin(r) + v.y * Math.cos(r),
+                                  z:  v.z}))
 };

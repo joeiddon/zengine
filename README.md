@@ -3,7 +3,7 @@ zengine.js
 
 #### A JavaScript 3D Rendering Engine
 
-iThere are many JavaScript 3D libraries out there, such as [three.js](https://threejs.org/), but I wanted to challenge myself to write the neatest, most simple code that accomplishes rendering objects in 3D to a 2D screen. Ignoring comments, all the code that was necessary to build this to its current functionality is under 100 lines!
+There are many JavaScript 3D libraries out there, such as [THREE.js](https://threejs.org/), but I wanted to challenge myself to write the neatest, most simple code that accomplishes rendering objects in 3D to a 2D screen. Ignoring comments, all the code that was necessary to build this to its current functionality is under 100 lines!
 
 ---
 

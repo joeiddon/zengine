@@ -1,6 +1,6 @@
 <html>
 <head>
-<script src="../zengine.js"></script>
+<script src='../zengine.js'></script>
 <style>
 html, body {
     margin: 0;
@@ -15,85 +15,93 @@ html, body {
 </style>
 </head>
 <body>
-<canvas id="cnvs"></canvas>
+<canvas id='cnvs'></canvas>
 <script>
-"use strict";
+'use strict';
 
 //retrieve canvas and 2d context
-var cnvs = document.getElementById("cnvs");
-var ctx = cnvs.getContext("2d");
+let cnvs = document.getElementById('cnvs');
+let ctx = cnvs.getContext('2d');
 
 //resizing boilerplate
-function fitToScreen(){
+function fit_to_screen(){
     cnvs.width = innerWidth;
     cnvs.height = innerHeight;
-    update();
+    render();
 }
 
 //gives the 3d coordinate on the unit sphere at yaw and pitch angles
-function circleCoord(y, p){
+function sphere_vect(y, p){
     return {x: Math.sin(y) * Math.cos(p), y: Math.cos(y) * Math.cos(p), z: Math.sin(p)};
 }
 
 //array to store ball (sphere) faces
-var ball = [];
+let ball = [];
 
 //how many segments to render
-var segs = Math.PI / 16;
+let segs = Math.PI / 16;
 
 //generate sphere faces
-for (var y = 0; y < Math.PI * 2; y += segs){
-    for (var p = -Math.PI/2; p < Math.PI/2; p += segs){
-        ball.push({verts: [circleCoord(y, p), circleCoord(y, p + segs), circleCoord(y + segs, p + segs), circleCoord(y + segs, p)], col: '#fff'});
+for (let y = 0; y < Math.PI * 2; y += segs){
+    for (let p = -Math.PI/2; p < Math.PI/2; p += segs){
+        ball.push({verts: [sphere_vect(y, p),
+                           sphere_vect(y, p + segs),
+                           sphere_vect(y + segs, p + segs),
+                           sphere_vect(y + segs, p)],
+                   vect: sphere_vect(y + segs/2, p + segs/2),
+                   col: 'hsl(0, 0%, 100%)'});
     }
 }
 
 //general
-var wireframe = true;
+let wireframe = false;
 
 //cam position
-var cam = {x:0, y:-5, z: 0, yaw: 0, pitch: 0, roll: 0, fov: 60};
+let cam = {x:0, y:-5, z: 0, yaw: 0, pitch: 0, roll: 0, fov: 60};
 
 //angular velocities
-var vx = 0;
-var vy = 0;
+let vx = 0;
+let vy = 0;
 
 //dapening for mapping pixel deltas to vels
-var dapening = 400;
+let dapening = 400;
 
 //controle pannel attrs.
-var cp = {x: 90, y: 120, r: 80};
+let cp = {x: 90, y: 120, r: 80};
 
 //mouse down coordinate
-var mdc;
+let mdc;
 
 //interval ID for rotating setInterval call
-var rot_int;
+let rot_int;
 
-function update(){
+function render(){
     zengine.render(ball, cam, cnvs, wireframe);
     draw_cp();
 }
 
 
-fitToScreen();
-window.addEventListener("resize", fitToScreen);
+fit_to_screen();
+window.addEventListener('resize', fit_to_screen);
 
-function rot_func(){
-    ball = ball.map(o=>({verts: o.verts.map(zengine.z_axis_rotate(vx)).map(zengine.x_axis_rotate(vy)), col: o.col}));
-    update();
+function rotate_ball(x, y){
+    ball = ball.map(o=>({verts: o.verts.map(zengine.z_axis_rotate(x))
+                                       .map(zengine.x_axis_rotate(y)),
+                         vect: zengine.x_axis_rotate(y)(
+                               zengine.z_axis_rotate(x)(o.vect)),
+                         col: o.col}));
 }
 
 /***************************************
 Event handlers:
 
-"mouseup"   --> mu
-"mousedown" --> md
-"mousemove" --> mmcp (control panel)
-"mousemove" --> mmdr (dragging)
+'mouseup'   --> mu
+'mousedown' --> md
+'mousemove' --> mmcp (control panel)
+'mousemove' --> mmdr (dragging)
 ****************************************/
 
-document.addEventListener("mousedown", md);
+document.addEventListener('mousedown', md);
 
 //sets the ball vel. from control panel
 function set_vel(e){
@@ -102,42 +110,45 @@ function set_vel(e){
 }
 
 function md(e){
-    cnvs.style.cursor = "-webkit-grabbing";
+    cnvs.style.cursor = '-webkit-grabbing';
     mdc = {x: e.offsetX, y: e.offsetY};
     if (dist(mdc, cp) < cp.r){
-        if (!rot_int) rot_int = setInterval(rot_func, 50);
         set_vel(e);
-        document.addEventListener("mouseup",   mu);
-        document.addEventListener("mousemove", mmcp);
-        document.removeEventListener("mousedown", md);
+        if (!rot_int) rot_int = setInterval(function(){
+            rotate_ball(vx, vy);
+            render();
+        }, 50);
+        document.addEventListener('mouseup',   mu);
+        document.addEventListener('mousemove', mmcp);
+        document.removeEventListener('mousedown', md);
     } else {
         clearInterval(rot_int);
         rot_int = 0;
-        document.addEventListener("mouseup",   mu);
-        document.addEventListener("mousemove", mmdr);
-        document.removeEventListener("mousedown", md);
+        document.addEventListener('mouseup',   mu);
+        document.addEventListener('mousemove', mmdr);
+        document.removeEventListener('mousedown', md);
     }
 }
 
 function mu(){
-    cnvs.style.cursor = "-webkit-grab";
-    document.removeEventListener("mousemove", mmcp);
-    document.removeEventListener("mousemove", mmdr);
-    document.addEventListener("mousedown", md);
-    document.removeEventListener("mouseup", mu);
+    cnvs.style.cursor = '-webkit-grab';
+    document.removeEventListener('mousemove', mmcp);
+    document.removeEventListener('mousemove', mmdr);
+    document.addEventListener('mousedown', md);
+    document.removeEventListener('mouseup', mu);
 }
 
-function mmcp(e){   
+function mmcp(e){
     //uncomment if-statement to limit control panel to within circle
     //if (dist({x: e.offsetX, y: e.offsetY}, cp) < cp.r)
     set_vel(e);
 }
 
 function mmdr(e){
-    var dx = e.movementX / dapening;
-    var dy = e.movementY / dapening;
-    ball = ball.map(o=>({verts: o.verts.map(zengine.z_axis_rotate(dx)).map(zengine.x_axis_rotate(dy * -1)), col: o.col}));11
-    update();
+    let dx = e.movementX / dapening;
+    let dy = e.movementY / dapening;
+    rotate_ball(dx, -dy);
+    render();
 }
 
 function dist(p1, p2){
@@ -145,17 +156,17 @@ function dist(p1, p2){
 }
 
 function draw_cp(){
-    ctx.font = "10px monospace";
-    ctx.fillStyle = "#fff";
-    ctx.fillText("use the circle to set", 10, 19);
-    ctx.fillText("a velocity", 10, 29);
-    ctx.fillText("or drag the sphere with", 10, cp.y + cp.r +  20);
-    ctx.fillText("your mouse", 10, cp.y + cp.r + 35);
+    ctx.font = '10px monospace';
+    ctx.fillStyle = '#fff';
+    ctx.fillText('use the circle to set', 10, 19);
+    ctx.fillText('a velocity', 10, 29);
+    ctx.fillText('or drag the sphere with', 10, cp.y + cp.r +  20);
+    ctx.fillText('your mouse', 10, cp.y + cp.r + 35);
     drawCircle(cp.x, cp.y, cp.r);
 }
 
 function drawCircle(x, y, r){
-    ctx.strokeStyle = "white";
+    ctx.strokeStyle = 'white';
     ctx.beginPath();
     ctx.arc(x, y, r, 0, Math.PI * 2);
     ctx.stroke();

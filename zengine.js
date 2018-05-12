@@ -38,7 +38,7 @@ let zengine = {
         // - facing the camera
         // - have at least one vertex in front of camera.
         world = world.filter(f =>
-            (!horizon || world[f].dist < horizon) &&
+            (!horizon || f.dist < horizon) &&
             (wireframe || (has_vects && this.dot_prod(cam_vect, f.vect) < 0)) &&
             f.verts.some(c => this.dot_prod({x: c.x-cam.x,
                                              y: c.y-cam.y,

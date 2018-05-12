@@ -19,6 +19,11 @@ let zengine = {
         let ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+        //unit vector for cam
+        let cam_vect = {x: Math.sin(this.to_rad(cam.yaw)) * Math.cos(this.to_rad(cam.pitch)),
+                        y: Math.cos(this.to_rad(cam.yaw)) * Math.cos(this.to_rad(cam.pitch)),
+                        z: Math.sin(this.to_rad(cam.pitch))}
+
         //temporary inclusion until all current uses are updated to include unit vects
         let has_vects = world[0].vect != undefined;
 
@@ -28,22 +33,22 @@ let zengine = {
             world[f].dist = this.distance(cam, this.centroid(world[f].verts));
         }
 
+        //only keep faces that are:
+        // - before the horizon
+        // - facing the camera
+        // - have at least one vertex in front of camera.
+        world = world.filter(f =>
+            (!horizon || world[f].dist < horizon) &&
+            (wireframe || (has_vects && this.dot_prod(cam_vect, f.vect) < 0)) &&
+            f.verts.some(c => this.dot_prod({x: c.x-cam.x,
+                                             y: c.y-cam.y,
+                                             z: c.z-cam.z}, cam_vect) > 0));
+
+
         //order the faces in the world (furthest to closest)
         if (!wireframe) world.sort((a, b) => b.dist - a.dist);
 
-        //unit vector for cam
-        let cam_vect = {x: Math.sin(this.to_rad(cam.yaw)) * Math.cos(this.to_rad(cam.pitch)),
-                        y: Math.cos(this.to_rad(cam.yaw)) * Math.cos(this.to_rad(cam.pitch)),
-                        z: Math.sin(this.to_rad(cam.pitch))}
-
         for (let f = 0; f < world.length; f++){
-            //only render the face if some of the coords are in front of the camera;
-            //and is facing towards the camera
-            //and the distance is less than the horizon
-            if (world[f].verts.every(c => this.dot_prod({x: c.x-cam.x, y: c.y-cam.y, z: c.z-cam.z}, cam_vect) < 0) ||
-                (/*!wireframe &&*/ has_vects && this.dot_prod(cam_vect, world[f].vect) > 0) ||
-                (horizon && world[f].dist > horizon)) continue;
-
             //align 3d coordinates to camera view angle
             let acs = world[f].verts.map(this.translate(-cam.x, -cam.y, -cam.z))
                                     .map(this.z_axis_rotate(this.to_rad(cam.yaw)))

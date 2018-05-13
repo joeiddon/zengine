@@ -27,10 +27,14 @@ let zengine = {
         //temporary inclusion until all current uses are updated to include unit vects
         let has_vects = world[0].vect != undefined;
 
-        //add a distance to cam attribute to each face for ordering
-        //and for removing those faces which are further than the vision horizon
+        //add some extra attrs. to each face
         for (var f = 0; f < world.length; f++){
-            world[f].dist = this.distance(cam, this.centroid(world[f].verts));
+            world[f].centr = this.centroid(world[f].verts);
+            world[f].dist = this.distance(cam, world[f].centr);
+            world[f].c_vect = {x: (world[f].centr.x - cam.x) / world[f].dist,
+                               y: (world[f].centr.y - cam.y) / world[f].dist,
+                               z: (world[f].centr.z - cam.z) / world[f].dist};
+
         }
 
         //only keep faces that are:
@@ -39,7 +43,7 @@ let zengine = {
         // - have at least one vertex in front of camera.
         world = world.filter(f =>
             (!horizon || f.dist < horizon) &&
-            (wireframe || (has_vects && this.dot_prod(cam_vect, f.vect) < 0)) &&
+            (wireframe || (has_vects && this.dot_prod(f.c_vect, f.vect) < 0)) &&
             f.verts.some(c => this.dot_prod({x: c.x-cam.x,
                                              y: c.y-cam.y,
                                              z: c.z-cam.z}, cam_vect) > 0));
@@ -75,7 +79,7 @@ let zengine = {
             if (!wireframe){
                 if (has_vects){
                     let c = world[f].col.split(',');
-                    c[2] = (parseInt(c[2]) * -this.dot_prod(cam_vect, world[f].vect)).toString() + '%)';
+                    c[2] = (parseInt(c[2]) * -this.dot_prod(world[f].c_vect, world[f].vect)).toString() + '%)';
                     ctx.fillStyle = c.join(',');
                 } else {
                     ctx.fillStyle = world[f].col;

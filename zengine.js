@@ -34,7 +34,6 @@ let zengine = {
             world[f].c_vect = {x: (world[f].centr.x - cam.x) / world[f].dist,
                                y: (world[f].centr.y - cam.y) / world[f].dist,
                                z: (world[f].centr.z - cam.z) / world[f].dist};
-
         }
 
         //only keep faces that are:

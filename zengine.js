@@ -78,7 +78,7 @@ let zengine = {
             if (!wireframe){
                 if (has_vects){
                     let c = world[f].col.split(',');
-                    c[2] = (parseInt(c[2]) * -this.dot_prod(world[f].c_vect, world[f].vect)).toString() + '%)';
+                    c[2] = (parseInt(c[2]) * -this.dot_prod(cam_vect, world[f].vect)).toString() + '%)';
                     ctx.fillStyle = c.join(',');
                 } else {
                     ctx.fillStyle = world[f].col;

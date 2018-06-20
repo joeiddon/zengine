@@ -42,7 +42,7 @@ let zengine = {
         // - have at least one vertex in front of camera.
         world = world.filter(f =>
             (!horizon || f.dist < horizon) &&
-            (wireframe || (has_vects && this.dot_prod(f.c_vect, f.vect) < 0)) &&
+            (wireframe || !has_vects || this.dot_prod(f.c_vect, f.vect) < 0) &&
             (!has_vects || f.verts.some(c => this.dot_prod({x: c.x-cam.x,
                                                             y: c.y-cam.y,
                                                             z: c.z-cam.z}, cam_vect) > 0)));

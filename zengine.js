@@ -45,8 +45,7 @@ let zengine = {
             (wireframe || (has_vects && this.dot_prod(f.c_vect, f.vect) < 0)) &&
             (!has_vects || f.verts.some(c => this.dot_prod({x: c.x-cam.x,
                                                             y: c.y-cam.y,
-                                                            z: c.z-cam.z}, cam_vect) > 0));
-
+                                                            z: c.z-cam.z}, cam_vect) > 0)));
 
         //order the faces in the world (furthest to closest)
         if (!wireframe) world.sort((a, b) => b.dist - a.dist);

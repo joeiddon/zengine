@@ -6,7 +6,7 @@
  modify it provided appropriate credit is given to the original author.
 
  GitHub Repository:
- https://github.com/RoadKillCat/3dSimulationVR/
+ https://github.com/RoadKillCat/zengine
 
  Author's website:
  http://joeiddon.me/

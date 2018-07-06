@@ -6,10 +6,10 @@
  modify it provided appropriate credit is given to the original author.
 
  GitHub Repository:
- https://github.com/RoadKillCat/zengine
+ https://github.com/joeiddon/zengine
 
  Author's website:
- http://joeiddon.me/
+ http://joeiddon.github.io/
 */
 
 'use strict';

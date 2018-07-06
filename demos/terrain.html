@@ -1,0 +1,204 @@
+<html>
+<head>
+    <script src='../zengine.js'></script>
+    <script src='https://joeiddon.github.io/perlin/perlin.js'></script>
+    <style>
+    body {
+        margin: 0;
+        padding: 0;
+    }
+    #cnvs {
+        background-color: black; 
+        position: fixed;
+        float: top;
+        z-index: -1;
+        <!-- #FCFCDA; -->
+    }   
+    #varsContainer{
+        padding: 10px;
+        width: 200px;
+    }
+    p {
+        text-align: center;
+    }
+    p, pre {
+        font-family: monospace;
+        margin: 0;
+        color: white;
+    }
+    #cam {
+        bottom: 0;
+        position: fixed;
+        text-align: left;
+    }
+    input {
+        margin: 0;
+        width: 100%;
+    }
+    button {
+        margin: 0;
+        width: 100%;
+    }
+    </style>
+</head>
+
+<body>
+<canvas id='cnvs'></canvas>
+<p id='cam'></p>
+<div id='varsContainer'>
+<p id='cellsVal'>hills: 2</p>
+<input min='0' value='2' max='10' type='range' oninput='document.getElementById('cellsVal').innerText='hills: '+this.value;cells=parseInt(this.value); restart();'></input>
+<p id='widthVal'>width: 32</p>
+<input min='1' value='32' max='100' type='range' oninput='document.getElementById('widthVal').innerText='width: '+this.value;grid.width=parseInt(this.value); restart();'></input>
+<p id='lengthVal'>length: 16</p>
+<input min='1' value='16' max='100' type='range' oninput='document.getElementById('lengthVal').innerText='length: '+this.value;grid.length=parseInt(this.value); restart();'></input>
+<p id='heightVal'>hill height: 4</p>
+<input min='0' value='4' max='20' type='range' oninput='document.getElementById('heightVal').innerText='hill height: '+this.value;hillHeight=parseInt(this.value); restart();'></input>
+<p id='speedVal'>speed: 100</p>
+<input min='1' value='100' max='200' type='range' oninput='document.getElementById('speedVal').innerText='speed: '+this.value;scrollSpeed=parseInt(this.value); restart();'></input>
+<pre>
+controls:
+wasd  |    movement
+zx    | fly up/down 
+eq    |         yaw
+rf    |       pitch
+yt    |        roll
+g     |   wireframe
+c     |     restart
+b     |      scroll
+</pre>
+</div>
+
+
+<script>
+var cnvs = document.getElementById('cnvs')
+var ctx = cnvs.getContext('2d')
+
+function fitCanvas(){
+    cnvs.width = innerWidth
+    cnvs.height = innerHeight
+}
+fitCanvas()
+
+window.addEventListener('resize', ()=>{fitCanvas();restart();})
+var randCol = () => 'hsl(' + (1+Math.random()*359) + ',50%,60%)'
+
+var grid = {width: 32, length: 16, squareSize: 1}
+var cells = 2
+var hillHeight = 4
+var scrollSpeed = 100
+var scrolling = false   //toggled immediately below
+var wireframe = false
+var cam = {x: (grid.width/2) * grid.squareSize, y: -grid.length, z: hillHeight * 1.5, yaw: 0, pitch: 0, roll: 0, fov: 80, step: 0.5, lookStep: 10}
+
+function genWorld(){ //adds triangle faces to world array of coordinates from heights array
+    world = []
+    for (var r = 0; r < grid.length; r++){
+        for (var c = 0; c < grid.width; c++){
+            //var col = randCol()
+            var v = parseInt((heights[r][c] / hillHeight) * 360 + 180)
+            var col = 'hsl(' + v + ', 50%, 60%)'
+            world.push(
+                {verts: [{x: c * grid.squareSize, y: r * grid.squareSize, z: heights[r][c]},
+                         {x: c * grid.squareSize + grid.squareSize, y: r * grid.squareSize, z: heights[r][c+1]}, 
+                         {x: c * grid.squareSize, y: r * grid.squareSize + grid.squareSize, z: heights[r+1][c]}],
+                          col: col},
+                {verts: [{x: c * grid.squareSize + grid.squareSize, y: r * grid.squareSize, z: heights[r][c+1]},
+                         {x: c * grid.squareSize + grid.squareSize, y: r * grid.squareSize + grid.squareSize, z:heights[r+1][c+1]}, 
+                         {x: c * grid.squareSize, y: r * grid.squareSize + grid.squareSize, z: heights[r+1][c]}],
+                          col: col}
+            )
+        }
+    }
+}
+
+function restart(){
+    perlin.seed()
+    heights = []
+    flying = grid.length - 1 //this is the end position of the grids so when scrolling we can get smooth perlin
+    for (var r = 0; r < grid.length + 1; r++){
+        var row = []
+        for (var c = 0; c < grid.width + 1; c++){
+            row.push(perlin.get(c * (cells/Math.min(grid.width, grid.length)), r * (cells/Math.min(grid.width, grid.length))) * hillHeight)
+        }
+        heights.push(row)
+    }
+    genWorld()
+    update()
+}
+
+restart()
+toggleScroll()
+
+function update(){
+    document.getElementById('cam').innerText = 'x: '+cam.x+' y: '+cam.y+' z: '+cam.z+' yaw: '+cam.yaw+' pitch: '+cam.pitch+' roll: '+cam.roll
+    zengine.render(world, cam, cnvs, wireframe)
+    drawCross(cnvs.width/2, cnvs.height/2, 20)
+}
+
+function toggleScroll(){
+    scrolling = !scrolling
+    if (scrolling) scroll()
+}
+
+function scroll(){
+    flying += 1
+    heights.shift(1)
+    heights.push([])
+    for (var c = 0; c < grid.width + 1; c++){
+        heights[heights.length-1].push(perlin.get(c * (cells/Math.min(grid.width, grid.length)), flying * (cells/Math.min(grid.width, grid.length))) * hillHeight)
+    }
+    genWorld()
+    update()
+    if (scrolling) setTimeout(scroll, scrollSpeed)
+}
+
+window.addEventListener('keydown', function (event){
+    var key = event.keyCode
+
+    if (key == 67) restart()                                //c for restart
+    if (key == 88) cam.z -= cam.step                        //x fly down
+    if (key == 90) cam.z += cam.step                        //z fly up
+    if (key == 87) takeStep(cam.yaw)                        //w walk forward
+    if (key == 83) takeStep(cam.yaw + 180)                  //s walk backwards
+    if (key == 65) takeStep(cam.yaw - 90)                   //a walk left
+    if (key == 68) takeStep(cam.yaw + 90)                   //d walk right
+    if (key == 69) cam.yaw   = (cam.yaw+cam.lookStep)%360   //e look left
+    if (key == 81) cam.yaw   = (cam.yaw-cam.lookStep)%360   //q look right
+    if (key == 82) cam.pitch = (cam.pitch+cam.lookStep)%360 //r look up
+    if (key == 70) cam.pitch = (cam.pitch-cam.lookStep)%360 //f look down
+    if (key == 89) cam.roll  = (cam.roll+cam.lookStep)%360  //y roll left
+    if (key == 84) cam.roll  = (cam.roll-cam.lookStep)%360  //t roll right
+    if (key == 66) toggleScroll()                           //b toggle auto scroll
+    if (key == 71) wireframe = !wireframe                   //g toggle wireframe
+    //if (key == 187) //+
+    //if (key == 189) //-
+    update()
+})
+
+
+
+function takeStep(yaw){
+    cam.x = cam.step * Math.sin(toRad(yaw)) + cam.x
+    cam.y = cam.step * Math.cos(toRad(yaw)) + cam.y
+}
+
+function drawLine(xStart, yStart, xFin, yFin){                  //draws a line on the canvas
+   ctx.beginPath();
+   ctx.moveTo(xStart, yStart);
+   ctx.lineTo(xFin, yFin);
+   ctx.strokeStyle = 'white'
+   ctx.stroke();
+}
+
+function drawCross(x, y, l){                                    //draws a cross on canvas in relation to the midpoint
+    drawLine(x + l, y, x - l, y)
+    drawLine(x, y + l, x, y - l)
+}
+
+
+</script>
+
+
+</body>
+</head>

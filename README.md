@@ -12,13 +12,13 @@ There are many JavaScript 3D libraries out there, such as [THREE.js](https://thr
 Simply include the source in your application's HTML, no downloading required:
 
 ```html
-<script src='http://joeiddon.me/zengine/zengine.js'></script>
+<script src='https://joeiddon.github.io/zengine/zengine.js'></script>
 ```
 
-or you can use the shorter `git.io` source:
+or you can use the shorter `git.io` redirect:
 
 ```html
-<script src='http://git.io/zengine.js'></script>
+<script src='https://git.io/zengine.js'></script>
 ```
 
 ---

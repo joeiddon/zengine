@@ -5,7 +5,7 @@
  This library is free software; you are free to redistribute it and/or
  modify it provided appropriate credit is given to the original author.
 
- GitHub Repository:
+ GitHub Repository (includes README.md w/documentation):
  https://github.com/joeiddon/zengine
 
  Author's website:
@@ -15,7 +15,7 @@
 'use strict';
 
 let zengine = {
-    render: function(world, cam, canvas, wireframe, horizon){
+    render: function(world, cam, canvas, wireframe, horizon, light){
         let ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -77,7 +77,7 @@ let zengine = {
             if (!wireframe){
                 if (has_vects){
                     let c = world[f].col.split(',');
-                    c[2] = (parseInt(c[2]) * -this.dot_prod(cam_vect, world[f].vect)).toString() + '%)';
+                    c[2] = (10+0.9 * parseInt(c[2]) * -this.dot_prod(light || cam_vect, world[f].vect)).toString() + '%)';
                     ctx.fillStyle = c.join(',');
                 } else {
                     ctx.fillStyle = world[f].col;
@@ -95,11 +95,12 @@ let zengine = {
         return {x: c.x/l, y: c.y/l, z: c.z/l};
     },
 
-    dot_prod: (v1, v2) => v1.x * v2.x + v1.y * v2.y + v1.z * v2.z,
     translate: (x, y, z) => (v => ({x: v.x + x, y: v.y + y, z: v.z + z})),
     to_deg: (r) => r * (180 / Math.PI),
     to_rad: (d) => d * (Math.PI / 180),
-    distance: (c1, c2) => Math.sqrt((c2.x - c1.x)**2 + (c2.y - c1.y)**2 + (c2.z - c1.z)**2),
+    distance: (c1, c2) => ((c2.x - c1.x)**2 + (c2.y - c1.y)**2 + (c2.z - c1.z)**2) ** 0.5,
+    dot_prod: (v1, v2) => v1.x * v2.x + v1.y * v2.y + v1.z * v2.z,
+    cross_prod: (v1, v2) => ({x: v1.y*v2.z - v1.z*v2.y, y: v1.z*v2.x - v1.x*v2.z, z: v1.x*v2.y-v1.y*v2.x}),
     x_axis_rotate: (r) => (v => ({x:  v.x,
                                   y:  v.y * Math.cos(r) + v.z * Math.sin(r),
                                   z: -v.y * Math.sin(r) + v.z * Math.cos(r)})),

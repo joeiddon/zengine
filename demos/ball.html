@@ -77,7 +77,6 @@ function init_ball(){
 function get_light_vect(){
     let yaw   = (cnvs.width/2 - light.x) * cam.fov / cnvs.width;
     let pitch = (cnvs.height/2 - light.y) * cam.fov / cnvs.width;
-    console.log(yaw, pitch);
     let vect = {x:  light.d * Math.tan(zengine.to_rad(yaw)),
                 y: -(cam.y + light.d),
                 z: -light.d * Math.tan(zengine.to_rad(pitch))};

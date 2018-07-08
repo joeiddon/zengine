@@ -52,7 +52,7 @@ function fit_to_screen(){
     update();
 }
 
-//returns the 3d cartesian coordinate at yaw, pitch angles on a unit sphere
+//returns the 3d cartesian coordinate at yaw, pitch angles on a unit sphee
 function sphere_to_cartesian(y, p){
     return {x: Math.sin(y) * Math.cos(p),
             y: Math.cos(y) * Math.cos(p),

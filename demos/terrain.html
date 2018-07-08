@@ -41,17 +41,21 @@
 <canvas id='cnvs'></canvas>
 <p id='cam'></p>
 <div id='inpt_cont'>
-<p id='p_cells'>hills: 2</p>
 <!---these inputs are quite messy, but they are easy enough to understand for now (will transfer into the main <script> later)-->
+<p id='p_cells' >hills: 2</p>
 <input min=0 value=2  max=10  type='range' oninput="document.getElementById('p_cells' ).innerText='hills: '       +this.value;cells      =parseInt(this.value);init();"></input>
-<p id='p_width'>width: 32</p>
+<p id='p_width' >width: 32</p>
 <input min=1 value=32 max=100 type='range' oninput="document.getElementById('p_width' ).innerText='width: '       +this.value;grid.width =parseInt(this.value);init();"></input>
 <p id='p_length'>length: 32</p>
 <input min=1 value=32 max=100 type='range' oninput="document.getElementById('p_length').innerText='length: '      +this.value;grid.length=parseInt(this.value);init();"></input>
 <p id='p_height'>hill height: 8</p>
 <input min=0 value=8  max=20  type='range' oninput="document.getElementById('p_height').innerText='hill height: ' +this.value;hill_height=parseInt(this.value);init();"></input>
-<p id='p_speed'>speed: 64</p>
+<p id='p_speed' >speed: 64</p>
 <input min=1 value=64 max=100 type='range' oninput="document.getElementById('p_speed' ).innerText='speed: '       +this.value;speed      =parseInt(this.value);"></input>
+<p id='p_yaw'  >light yaw: 0</p>
+<input min=0      value=0 max=6.28 step=0.01 type='range' oninput="document.getElementById('p_yaw').innerText   ='light yaw: '  +this.value;light.yaw  =parseFloat(this.value);"></input>
+<p id='p_pitch'>light pitch: 0</p>
+<input min=-1.57 value=0 max=1.57 step=0.01 type='range' oninput="document.getElementById('p_pitch' ).innerText='light pitch: '+this.value;light.pitch=parseFloat(this.value);"></input>
 </div>
 
 <script>
@@ -75,10 +79,23 @@ let cam = {yaw: 0,
            pitch: -30,
            roll: 0,
            fov: 80};
+//yaw and pitch angles of the light
+let light = {yaw: 0, pitch: 0};
+
 //initialise a global heights array
 let heights;
 //variable to store the number of rows we have shifted/scrolled through
 let row_shift;
+
+//***expiremental light visualisation****
+let col = 'hsl(0, 0%, 100%)';
+let cube = [{verts: [{x:0, y:0, z:0}, {x:0, y:1, z:0}, {x:0, y:1, z:1}, {x:0, y:0, z:1}], col: col, vect: {x:-1, y: 0, z: 0}},
+            {verts: [{x:0, y:0, z:0}, {x:1, y:0, z:0}, {x:1, y:0, z:1}, {x:0, y:0, z:1}], col: col, vect: {x: 0, y:-1, z: 0}},
+            {verts: [{x:0, y:0, z:0}, {x:1, y:0, z:0}, {x:1, y:1, z:0}, {x:0, y:1, z:0}], col: col, vect: {x: 0, y: 0, z:-1}},
+            {verts: [{x:1, y:0, z:0}, {x:1, y:1, z:0}, {x:1, y:1, z:1}, {x:1, y:0, z:1}], col: col, vect: {x: 1, y: 0, z: 0}},
+            {verts: [{x:0, y:1, z:0}, {x:1, y:1, z:0}, {x:1, y:1, z:1}, {x:0, y:1, z:1}], col: col, vect: {x: 0, y: 1, z: 0}},
+            {verts: [{x:0, y:0, z:1}, {x:1, y:0, z:1}, {x:1, y:1, z:1}, {x:0, y:1, z:1}], col: col, vect: {x: 0, y: 0, z: 1}}];
+
 
 /**** START ***/
 
@@ -94,13 +111,15 @@ update();
 //handles the update to the next frame
 function update(){
     shift_heights_arr();
-    zengine.render(gen_world(), cam, cnvs, false);
+    zengine.render(gen_world(), cam, cnvs, false, Infinity, sphere_to_cartesian(light.yaw,light.pitch));
     setTimeout(update, 100 - speed);
 }
 
 //returns an array of faces (triangles) that follow the surface described by the array of heights
 function gen_world(){
-    let world = [];
+    //***expiremental light visualisation****
+    let v = sphere_to_cartesian(light.yaw,light.pitch);
+    let world = cube.map(f=>({verts: f.verts.map(zengine.translate(grid.width/2-0.5-v.x*grid.length/2, grid.length/2-0.5-v.y*grid.length/2, -v.z*grid.length/2)), vect: f.vect, col: f.col}));
     for (let r = 0; r < grid.length; r++){
         for (let c = 0; c < grid.width; c++){
             //`v` is just a scaled version of the height of this triangle for its colour
@@ -156,6 +175,13 @@ function init(){
     cam.x = grid.width/2;
     cam.y = -20;
     cam.z = 20;
+}
+
+//returns a unit vector, given a yaw and pitch angle
+function sphere_to_cartesian(y, p){
+    return {x: Math.sin(y) * Math.cos(p),
+            y: Math.cos(y) * Math.cos(p),
+            z: Math.sin(p)};
 }
 
 //resizes canvas to fill full screen

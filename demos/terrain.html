@@ -13,7 +13,7 @@
         float: top;
         z-index: -1;
     }
-    #lets_cont{
+    #inpt_cont{
         padding: 10px;
         width: 200px;
     }
@@ -40,48 +40,63 @@
 
 <canvas id='cnvs'></canvas>
 <p id='cam'></p>
-<div id='lets_cont'>
+<div id='inpt_cont'>
 <p id='p_cells'>hills: 2</p>
-<input min='0' value='2' max='10' type='range' oninput="document.getElementById('p_cells').innerText='hills: '+this.value;cells=parseInt(this.value);init();"></input>
+<!---these inputs are quite messy, but they are easy enough to understand for now (will transfer into the main <script> later)-->
+<input min=0 value=2  max=10  type='range' oninput="document.getElementById('p_cells' ).innerText='hills: '       +this.value;cells      =parseInt(this.value);init();"></input>
 <p id='p_width'>width: 32</p>
-<input min='1' value='32' max='100' type='range' oninput="document.getElementById('p_width').innerText='width: '+this.value;grid.width=parseInt(this.value);init();"></input>
-<p id='p_length'>length: 16</p>
-<input min='1' value='16' max='100' type='range' oninput="document.getElementById('p_length').innerText='length: '+this.value;grid.length=parseInt(this.value);init();"></input>
-<p id='p_height'>hill height: 4</p>
-<input min='0' value='4' max='20' type='range' oninput="document.getElementById('p_height').innerText='hill height: '+this.value;hill_height=parseInt(this.value);init();"></input>
-<p id='p_speed'>speed: 100</p>
-<input min='1' value='100' max='200' type='range' oninput="document.getElementById('p_speed').innerText='speed: '+this.value;speed=parseInt(this.value);"></input>
+<input min=1 value=32 max=100 type='range' oninput="document.getElementById('p_width' ).innerText='width: '       +this.value;grid.width =parseInt(this.value);init();"></input>
+<p id='p_length'>length: 32</p>
+<input min=1 value=32 max=100 type='range' oninput="document.getElementById('p_length').innerText='length: '      +this.value;grid.length=parseInt(this.value);init();"></input>
+<p id='p_height'>hill height: 8</p>
+<input min=0 value=8  max=20  type='range' oninput="document.getElementById('p_height').innerText='hill height: ' +this.value;hill_height=parseInt(this.value);init();"></input>
+<p id='p_speed'>speed: 64</p>
+<input min=1 value=64 max=100 type='range' oninput="document.getElementById('p_speed' ).innerText='speed: '       +this.value;speed      =parseInt(this.value);"></input>
 </div>
-
 
 <script>
 'use strict';
-let cnvs = document.getElementById('cnvs');
-let ctx = cnvs.getContext('2d');
 
-let grid = {width: 32, length: 16};
+/*** VARIABLES ***/
+
+//get canvas
+let cnvs = document.getElementById('cnvs');
+
+//size of grid
+let grid = {width: 32, length: 32};
+//how many perlin cells (across the shortest length of the rectangle)
 let cells = 2;
-let hill_height = 4;
-let speed = 100;
-let scrolling = false;
-let wireframe = false;
+//how much to scale the output of perlin.js (- ranges from -1 to 1)
+let hill_height = 8;
+//defines millisecond delay between renders (delay = 100 - speed)
+let speed = 64;
+//some initial attrs. for the cam (position defined in fit_to_screen)
 let cam = {yaw: 0,
            pitch: -30,
            roll: 0,
            fov: 80};
+//initialise a global heights array
 let heights;
+//variable to store the number of rows we have shifted/scrolled through
 let row_shift;
 
-//resizes canvas to fill full screen
-function fit_to_screen(){
-    cnvs.width = innerWidth;
-    cnvs.height = innerHeight;
-}
+/**** START ***/
+
+//resize canvas to the size of the screen and init listening for resizes
 fit_to_screen();
 window.addEventListener('resize', fit_to_screen);
 
+//initialise heights and set camera pos
 init();
+//call first render
 update();
+
+//handles the update to the next frame
+function update(){
+    shift_heights_arr();
+    zengine.render(gen_world(), cam, cnvs, false);
+    setTimeout(update, 100 - speed);
+}
 
 //returns an array of faces (triangles) that follow the surface described by the array of heights
 function gen_world(){
@@ -143,13 +158,12 @@ function init(){
     cam.z = 20;
 }
 
-//handles the update to the next frame
-function update(){
-    shift_heights_arr();
-    zengine.render(gen_world(), cam, cnvs, wireframe);
-    requestAnimationFrame(update);
-    //setTimeout(update, speed);
+//resizes canvas to fill full screen
+function fit_to_screen(){
+    cnvs.width = innerWidth;
+    cnvs.height = innerHeight;
 }
+
 </script>
 </body>
 </head>

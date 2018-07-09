@@ -30,16 +30,16 @@ let ctx = cnvs.getContext('2d');
 //array to store ball (sphere) faces
 let ball = [];
 //size of a segment (in radians)
-let seg_rad = Math.PI / 16;
+let seg_rad = Math.PI / 32;
 //general
 let wireframe = false;
 //cam position
 let cam = {x:0, y:-5, z: 0, yaw: 0, pitch: 0, roll: 0, fov: 60};
 //dapening for mapping mouse movement pixel deltas to rotation deltas
 let dapening = 400;
-//circle on screen is at (x,y) with radius r and d is the distance of it
-//from the camera (in 3d units)
-let light = {r: 32, d: 4};
+//light circle on screen is at (x,y) with radius, r and distance, d
+//it from the ball (in 3d units)
+let light = {r: 32, d: 4, min_saturation: 0, min_lightness: 0.2};
 
 //resize the canvas to the screen
 function fit_to_screen(){
@@ -68,7 +68,7 @@ function init_ball(){
                                sphere_to_cartesian(y + seg_rad, p + seg_rad),
                                sphere_to_cartesian(y + seg_rad, p       )],
                        vect: sphere_to_cartesian(y + seg_rad/2, p + seg_rad/2),
-                       col: 'hsl(0, 0%, 100%)'});
+                       col: {h: 0, s: 0, l: 100}});
         }
     }
 }
@@ -82,7 +82,11 @@ function get_light_vect(){
                 z: -light.d * Math.tan(zengine.to_rad(pitch))};
     //convert to unit vector by dividing by length
     let mag = zengine.distance(vect, {x: 0, y: 0, z: 0});
-    return {x: vect.x / mag, y: vect.y / mag, z: vect.z / mag};
+    return {x: vect.x / mag,
+            y: vect.y / mag,
+            z: vect.z / mag,
+            min_saturation: light.min_saturation,
+            min_lightness: light.min_lightness};
 }
 
 //renders the current ball using zengine.js

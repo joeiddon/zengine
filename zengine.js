@@ -76,9 +76,11 @@ let zengine = {
             ctx.closePath(); ctx.stroke();
             if (!wireframe){
                 if (has_vects){
-                    let c = world[f].col.split(',');
-                    c[2] = (10+0.9 * parseInt(c[2]) * -this.dot_prod(light || cam_vect, world[f].vect)).toString() + '%)';
-                    ctx.fillStyle = c.join(',');
+                    let angle = -this.dot_prod(light || cam_vect, world[f].vect);
+                    if (angle < 0) angle = 0;
+                    let s = world[f].col.s * (light.min_saturation + (1 - light.min_saturation) * angle);
+                    let l = world[f].col.l * (light.min_lightness + (1 - light.min_lightness ) * angle);
+                    ctx.fillStyle = 'hsl('+world[f].col.h+','+s+'%,'+l+'%)';
                 } else {
                     ctx.fillStyle = world[f].col;
                 }
@@ -100,7 +102,9 @@ let zengine = {
     to_rad: (d) => d * (Math.PI / 180),
     distance: (c1, c2) => ((c2.x - c1.x)**2 + (c2.y - c1.y)**2 + (c2.z - c1.z)**2) ** 0.5,
     dot_prod: (v1, v2) => v1.x * v2.x + v1.y * v2.y + v1.z * v2.z,
-    cross_prod: (v1, v2) => ({x: v1.y*v2.z - v1.z*v2.y, y: v1.z*v2.x - v1.x*v2.z, z: v1.x*v2.y-v1.y*v2.x}),
+    cross_prod: (v1, v2) => ({x: v1.y * v2.z - v1.z * v2.y,
+                              y: v1.z * v2.x - v1.x * v2.z,
+                              z: v1.x * v2.y - v1.y * v2.x}),
     x_axis_rotate: (r) => (v => ({x:  v.x,
                                   y:  v.y * Math.cos(r) + v.z * Math.sin(r),
                                   z: -v.y * Math.sin(r) + v.z * Math.cos(r)})),

@@ -19,8 +19,6 @@
     }
     p {
         text-align: center;
-    }
-    p, pre {
         font-family: monospace;
         margin: 0;
         color: white;
@@ -37,7 +35,6 @@
 </head>
 
 <body>
-
 <canvas id='cnvs'></canvas>
 <p id='cam'></p>
 <div id='inpt_cont'>
@@ -51,12 +48,14 @@
 <p id='p_height'>hill height: 8</p>
 <input min=0 value=8  max=20  type='range' oninput="document.getElementById('p_height').innerText='hill height: ' +this.value;hill_height=parseInt(this.value);init();"></input>
 <p id='p_speed' >speed: 64</p>
-<input min=1 value=64 max=100 type='range' oninput="document.getElementById('p_speed' ).innerText='speed: '       +this.value;speed      =parseInt(this.value);"></input>
-<p id='p_yaw'  >light yaw: 0</p>
-<input min=0      value=0 max=6.28 step=0.01 type='range' oninput="document.getElementById('p_yaw').innerText   ='light yaw: '  +this.value;light.yaw  =parseFloat(this.value);"></input>
-<p id='p_pitch'>light pitch: 0</p>
-<input min=-1.57 value=0 max=1.57 step=0.01 type='range' oninput="document.getElementById('p_pitch' ).innerText='light pitch: '+this.value;light.pitch=parseFloat(this.value);"></input>
-</div>
+<input min=0 value=64 max=400 type='range' oninput="document.getElementById('p_speed' ).innerText='speed: '       +this.value;speed      =parseInt(this.value);"></input>
+<p id='p_yaw'  >light yaw speed: 4</p>
+<input min=0   value=6 max=60 type='range' oninput="document.getElementById('p_yaw').innerText   ='light yaw speed: '  +this.value;light.yaw_speed=parseFloat(this.value);"></input>
+<p id='p_pitch'>light pitch speed: 0</p>
+<input min=-90 value=0 max=60 type='range' oninput="document.getElementById('p_pitch' ).innerText='light pitch speed: '+this.value;light.pitch_speed=parseFloat(this.value);"></input>
+<br></br>
+<p id='fps'></p>
+</div>1
 
 <script>
 'use strict';
@@ -69,26 +68,34 @@ let cnvs = document.getElementById('cnvs');
 //size of grid
 let grid = {width: 32, length: 32};
 //how many perlin cells (across the shortest length of the rectangle)
-let cells = 2;
+let cells = 2
 //how much to scale the output of perlin.js (- ranges from -1 to 1)
 let hill_height = 8;
 //defines millisecond delay between renders (delay = 100 - speed)
-let speed = 64;
+let speed = 128;
 //some initial attrs. for the cam (position defined in fit_to_screen)
 let cam = {yaw: 0,
            pitch: -30,
            roll: 0,
            fov: 80};
 //yaw and pitch angles of the light
-let light = {yaw: 0, pitch: 0};
+let light = {yaw: 0,
+             pitch: -20,
+             yaw_speed: 6,
+             pitch_speed: 0,
+             min_saturation: 0,
+             min_lightness: 0.2};
 
 //initialise a global heights array
 let heights;
 //variable to store the number of rows we have shifted/scrolled through
 let row_shift;
-
-//***expiremental light visualisation****
-let col = 'hsl(0, 0%, 100%)';
+//time (in millis) for next shift
+let next_shift_ms;
+//array of times (in millis) for fps display
+let times = [];
+//define faces of light cube
+let col = {h: 0, s: 0, l: 100};
 let cube = [{verts: [{x:0, y:0, z:0}, {x:0, y:1, z:0}, {x:0, y:1, z:1}, {x:0, y:0, z:1}], col: col, vect: {x:-1, y: 0, z: 0}},
             {verts: [{x:0, y:0, z:0}, {x:1, y:0, z:0}, {x:1, y:0, z:1}, {x:0, y:0, z:1}], col: col, vect: {x: 0, y:-1, z: 0}},
             {verts: [{x:0, y:0, z:0}, {x:1, y:0, z:0}, {x:1, y:1, z:0}, {x:0, y:1, z:0}], col: col, vect: {x: 0, y: 0, z:-1}},
@@ -106,25 +113,34 @@ window.addEventListener('resize', fit_to_screen);
 //initialise heights and set camera pos
 init();
 //call first render
-update();
+requestAnimationFrame(update);
 
 //handles the update to the next frame
-function update(){
-    shift_heights_arr();
-    zengine.render(gen_world(), cam, cnvs, false, Infinity, sphere_to_cartesian(light.yaw,light.pitch));
-    setTimeout(update, 100 - speed);
+function update(time){
+    if (!next_shift_ms) next_shift_ms = time;
+    if (speed && next_shift_ms < time){
+        next_shift_ms = time + 400 - speed;
+        shift_heights_arr();
+    }
+    update_light_cartesian();
+    zengine.render(gen_world(), cam, cnvs, false, Infinity, light);
+    light.yaw += light.yaw_speed;
+    light.pitch += light.pitch_speed;
+    update_fps_p(time)
+    requestAnimationFrame(update);
 }
 
 //returns an array of faces (triangles) that follow the surface described by the array of heights
 function gen_world(){
-    //***expiremental light visualisation****
-    let v = sphere_to_cartesian(light.yaw,light.pitch);
-    let world = cube.map(f=>({verts: f.verts.map(zengine.translate(grid.width/2-0.5-v.x*grid.length/2, grid.length/2-0.5-v.y*grid.length/2, -v.z*grid.length/2)), vect: f.vect, col: f.col}));
+    let world = cube.map(f=>({verts: f.verts.map(zengine.translate(grid.width/2 -0.5-light.x*grid.length/2,
+                                                                   grid.length/2-0.5-light.y*grid.length/2,
+                                                                                    -light.z*grid.length/2)),
+                              vect: f.vect, col: f.col}));
     for (let r = 0; r < grid.length; r++){
         for (let c = 0; c < grid.width; c++){
-            //`v` is just a scaled version of the height of this triangle for its colour
-            let v = parseInt((heights[r][c] / hill_height) * 360 + 180);
-            let col = 'hsl(' + v + ',40%,60%)';
+            //hue is just a scaled version of the height of this triangle for its colour
+            let hue = parseInt((heights[r][c] / hill_height) * 360 + 180);
+            let hsl = {h: hue, s: 50, l: 40};
             /* format for tile (two triangles):
              *   [2] (c,r+1) *---* (c+1,r+1) [3]
              *               | \ |
@@ -139,10 +155,10 @@ function gen_world(){
             world.push(
                 {verts: [vs[0], vs[1], vs[2]],
                  vect: zengine.cross_prod(vec(vs[0],vs[1]), vec(vs[0],vs[2])),
-                 col: col},
+                 col: hsl},
                 {verts: [vs[1], vs[2], vs[3]],
                  vect: zengine.cross_prod(vec(vs[3],vs[2]), vec(vs[3],vs[1])),
-                 col: col}
+                 col: hsl}
             );
         }
     }
@@ -177,17 +193,24 @@ function init(){
     cam.z = 20;
 }
 
-//returns a unit vector, given a yaw and pitch angle
-function sphere_to_cartesian(y, p){
-    return {x: Math.sin(y) * Math.cos(p),
-            y: Math.cos(y) * Math.cos(p),
-            z: Math.sin(p)};
+//updates light to have  cartesian (x,y,z)
+function update_light_cartesian(){
+    light.x = Math.sin(zengine.to_rad(light.yaw)) * Math.cos(zengine.to_rad(light.pitch));
+    light.y = Math.cos(zengine.to_rad(light.yaw)) * Math.cos(zengine.to_rad(light.pitch));
+    light.z = Math.sin(zengine.to_rad(light.pitch));
 }
 
 //resizes canvas to fill full screen
 function fit_to_screen(){
     cnvs.width = innerWidth;
     cnvs.height = innerHeight;
+}
+
+//updates the frames per second display
+function update_fps_p(time){
+    times.push(time);
+    times = times.filter(t => time - 1000 < t);
+    document.getElementById('fps').innerText = 'fps: '+times.length;
 }
 
 </script>

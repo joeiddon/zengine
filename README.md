@@ -89,7 +89,8 @@ Attribute        | Meaning
 `min_saturation` | minimum saturation percent
 `min_lightness`  | minimum lightness percent
 
-*Both the `min_*` attributes are to be given as decimals in the range `0` to `1`.*
+Where the `min_*` attributes are to be given as decimals in the range `0` to `1`.
+
 ---
 
 ### Examples

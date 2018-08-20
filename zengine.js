@@ -51,6 +51,8 @@ let zengine = {
         if (!wireframe) world.sort((a, b) => b.dist - a.dist);
 
         for (let f = 0; f < world.length; f++){
+            //todo: just have more stacked .map calls rather than chunk it
+
             //align 3d coordinates to camera view angle
             let acs = world[f].verts.map(this.translate(-cam.x, -cam.y, -cam.z))
                                     .map(this.z_axis_rotate(this.to_rad(cam.yaw)))

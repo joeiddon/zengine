@@ -41,6 +41,8 @@ It has the format:
 zengine.render(world, cam, canvas, wireframe, horizon, light);
 ```
 
+*Note that `wireframe`, `horizon` and `light` can be set to their default values of: `false`, `Infinity` (not actually because the filtering step is skipped for efficiency) and the camera's point of view's vector by not passing them or through `undefined`*.
+
 The `world` is described by an array of faces.
 
 Each face is itself an object with attributes:

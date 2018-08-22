@@ -97,11 +97,20 @@ Where the `min_*` attributes are to be given as decimals in the range `0` to `1`
 
 ### Examples
 
-Thee [demo folder](https://github.com/demos/zengine/tree/master/demos) contains example code. You can view the code either by cloning this whole repository with
+The [demo folder](https://github.com/demos/zengine/tree/master/demos) contains example code. You can view the code either by cloning this whole repository with
 
 ```shell
 git clone https://github.com/joeiddon/zengine.git
 ```
-or just use the in the GitHub webapp.
+or just use the GitHub webapp.
 
 To actually view each example just visit `http://joeiddon.github.io/zengine/demos`.
+
+---
+
+### Known Bugs
+
+Some bugs that need fixing, but I haven't got around to:
+
+- Proper face ordering - currently done by distance to face centroids.
+- Rotation around the x-axis is not right-hand for some reason - probably a dodgy rotation matrix calculation.

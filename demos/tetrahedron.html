@@ -1,0 +1,86 @@
+<html>
+<head>
+<script src='https://git.io/zengine.js'></script>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+    }
+    canvas {
+        background-color: black;
+    }
+</style>
+</head>
+
+<body>
+<canvas id='cnvs'></canvas>
+<script>
+'use strict';
+//get out canvas DOM
+let cnvs = document.getElementById('cnvs');
+
+//resize the canvas to fill the screen
+//if I could be bothered, I'd add a
+//'resize' event listener to fill on page resize
+cnvs.width = innerWidth;
+cnvs.height = innerHeight;
+
+//define the verticies of the tetrahedron (the diaganols of a cube ;) )
+let verts = [{x: -0.5, y: -0.5, z: -0.5},
+             {x:  0.5, y:  0.5, z: -0.5},
+             {x: -0.5, y:  0.5, z:  0.5},
+             {x:  0.5, y: -0.5, z:  0.5}];
+
+//define the tetrahedron's faces (verticies need to be ordered anti-clockwise looking at face
+let tetrahedron = [
+    {verts: [verts[0], verts[2], verts[1]], col: {h: 0,   s: 90, l: 70}},
+    {verts: [verts[1], verts[2], verts[3]], col: {h: 100, s: 90, l: 70}},
+    {verts: [verts[0], verts[1], verts[3]], col: {h: 160, s: 90, l: 70}},
+    {verts: [verts[0], verts[3], verts[2]], col: {h: 68,  s: 90, l: 70}},
+];
+
+//should we render with wireframe
+//(this is my stackoverflow.com profile pic! it actually has thicker `ctx.lineWidth`)
+let wireframe = true;
+//define our viewpoint
+let cam = {x: 0, y: -3, z: 1, yaw: 0, pitch: -18, roll: 0, fov: 70};
+//current z-axis rotation angle of 
+let angle = 0;
+//rotation speed in radians / second
+let rot_speed =  Math.PI * 2;
+//global to store the time of the last frame so
+//we can calculate a time delta to keep a constant
+//rotation speed
+let last_time_ms;
+
+//init
+requestAnimationFrame(update);
+
+//this is our main update function to do one render
+function update(time){
+    //the `if` is necessarry as no `last_time_ms` on first call
+    if (last_time_ms){
+        //increment our angle by the speed times the time delta (converted to seconds)
+        //also mod (`%`) by the angles around a circle
+        angle = (angle + rot_speed * (time-last_time_ms) / 1000) % (Math.PI * 2);
+    }
+    //store the time for the next update
+    last_time_ms = time;
+    //render the tetragedron; rotated by the right amount (both the verticies and the unit vector need to be rotated)
+    zengine.render(tetrahedron.map(f => ({verts: f.verts.map(zengine.z_axis_rotate(angle)),
+                                           vect: zengine.z_axis_rotate(angle)(get_unit_vect(f.verts)),
+                                            col: f.col})), cam, cnvs);
+    //call ourselves for the next frame
+    requestAnimationFrame(update);
+}
+
+//function to get unit vector using right-hand-rule
+function get_unit_vect(verts){
+    let cp = zengine.cross_prod({x: verts[1].x - verts[0].x, y: verts[1].y - verts[0].y, z: verts[1].z - verts[0].z},
+                                {x: verts[2].x - verts[1].x, y: verts[2].y - verts[1].y, z: verts[2].z - verts[1].z});
+    let l = zengine.distance({x: 0, y: 0, z: 0}, cp);
+    return {x: cp.x / l, y: cp.y / l, z: cp.z / l};
+}
+</script>
+</body>
+</html>

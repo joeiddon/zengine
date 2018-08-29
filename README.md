@@ -104,7 +104,7 @@ git clone https://github.com/joeiddon/zengine.git
 ```
 or just use the GitHub webapp.
 
-To actually view each example just visit `http://joeiddon.github.io/zengine/demos`.
+To actually view each example just visit `https://joeiddon.github.io/zengine/demos`.
 
 ---
 

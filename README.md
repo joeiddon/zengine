@@ -114,3 +114,14 @@ Some bugs that need fixing, but I haven't got around to:
 
 - Proper face ordering - currently done by distance to face centroids.
 - Rotation around the x-axis is not right-hand for some reason - probably a dodgy rotation matrix calculation.
+
+---
+
+### Uses
+
+These are some links to uses of this library:
+
+- [the demos](https://joeiddon.github.io/demos)
+- [maze game](https://joeiddon.github.io/3d_maze_game)
+- [apocalombie](https://joeiddon.github.io/apocalombie)
+- [blocks](https://joeiddon.github.io/blocks)

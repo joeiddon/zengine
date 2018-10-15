@@ -78,7 +78,7 @@ let zengine = {
             ctx.closePath(); ctx.stroke();
             if (!wireframe){
                 if (has_vects){
-                    let angle = -this.dot_prod(light || cam_vect, world[f].vect);
+                    let angle = -this.dot_prod(light || world[f].c_vect /*cam_vect*/, world[f].vect);
                     if (angle < 0) angle = 0;
                     let s = world[f].col.s * (light ? (light.min_saturation+ (1 -light.min_saturation) * angle) : angle);
                     let l = world[f].col.l * (light ? (light.min_lightness + (1 -light.min_lightness ) * angle) : angle);

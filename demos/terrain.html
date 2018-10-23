@@ -35,6 +35,15 @@
 </head>
 
 <body>
+
+<!--
+    WARNING:
+    This is *NOT* the best code, in fact it is quite messy and needs
+    tidying. When I last updated it, I was playing with the lights,
+    and didn't get around to tidying the inputs, etc. I will do when 
+    I get the time!
+-->
+
 <canvas id='cnvs'></canvas>
 <p id='cam'></p>
 <div id='inpt_cont'>
@@ -47,15 +56,15 @@
 <input min=1 value=32 max=100 type='range' oninput="document.getElementById('p_length').innerText='length: '      +this.value;grid.length=parseInt(this.value);init();"></input>
 <p id='p_height'>hill height: 8</p>
 <input min=0 value=8  max=20  type='range' oninput="document.getElementById('p_height').innerText='hill height: ' +this.value;hill_height=parseInt(this.value);init();"></input>
-<p id='p_speed' >speed: 64</p>
-<input min=0 value=64 max=400 type='range' oninput="document.getElementById('p_speed' ).innerText='speed: '       +this.value;speed      =parseInt(this.value);"></input>
-<p id='p_yaw'  >light yaw speed: 4</p>
-<input min=0   value=6 max=60 type='range' oninput="document.getElementById('p_yaw').innerText   ='light yaw speed: '  +this.value;light.yaw_speed=parseFloat(this.value);"></input>
+<p id='p_speed' >speed: 256</p>
+<input min=0 value=256 max=400 type='range' oninput="document.getElementById('p_speed' ).innerText='speed: '       +this.value;speed      =parseInt(this.value);"></input>
+<p id='p_yaw'  >light yaw speed: 0</p>
+<input min=0   value=0 max=60 type='range' oninput="document.getElementById('p_yaw').innerText   ='light yaw speed: '  +this.value;light.yaw_speed=parseFloat(this.value);"></input>
 <p id='p_pitch'>light pitch speed: 0</p>
 <input min=-90 value=0 max=60 type='range' oninput="document.getElementById('p_pitch' ).innerText='light pitch speed: '+this.value;light.pitch_speed=parseFloat(this.value);"></input>
 <br></br>
 <p id='fps'></p>
-</div>1
+</div>
 
 <script>
 'use strict';
@@ -71,17 +80,17 @@ let grid = {width: 32, length: 32};
 let cells = 2
 //how much to scale the output of perlin.js (- ranges from -1 to 1)
 let hill_height = 8;
-//defines millisecond delay between renders (delay = 100 - speed)
-let speed = 128;
+//defines millisecond delay between renders (delay = 400 - speed)
+let speed = 256;
 //some initial attrs. for the cam (position defined in fit_to_screen)
 let cam = {yaw: 0,
            pitch: -30,
            roll: 0,
            fov: 80};
-//yaw and pitch angles of the light
-let light = {yaw: 0,
+//yaw and pitch angles of the light (in degrees)
+let light = {yaw: 30,
              pitch: -20,
-             yaw_speed: 6,
+             yaw_speed: 0,
              pitch_speed: 0,
              min_saturation: 0,
              min_lightness: 0.2};

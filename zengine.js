@@ -21,7 +21,7 @@ let zengine = {
 
         //create cartesian unit vector representations from polar light and cam vects
         let cam_vect = this.polar_to_cart(this.to_rad(cam.yaw), this.to_rad(cam.pitch));
-        let light_vect = this.polar_to_cart(this.to_rad(light.yaw), this.to_rad(light.pitch)) || undefined;
+        let light_vect = light ? this.polar_to_cart(this.to_rad(light.yaw), this.to_rad(light.pitch)) : 0;
 
         //temporary inclusion until all current uses are updated to include unit vects
         let has_vects = world[0].vect != undefined;

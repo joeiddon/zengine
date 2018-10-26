@@ -131,7 +131,6 @@ function update(time){
         next_shift_ms = time + 400 - speed;
         shift_heights_arr();
     }
-    update_light_cartesian();
     zengine.render(gen_world(), cam, cnvs, false, Infinity, light);
     light.yaw += light.yaw_speed;
     light.pitch += light.pitch_speed;
@@ -141,10 +140,7 @@ function update(time){
 
 //returns an array of faces (triangles) that follow the surface described by the array of heights
 function gen_world(){
-    let world = cube.map(f=>({verts: f.verts.map(zengine.translate(grid.width/2 -0.5-light.x*grid.length/2,
-                                                                   grid.length/2-0.5-light.y*grid.length/2,
-                                                                                    -light.z*grid.length/2)),
-                              vect: f.vect, col: f.col}));
+    let world = [];
     for (let r = 0; r < grid.length; r++){
         for (let c = 0; c < grid.width; c++){
             //hue is just a scaled version of the height of this triangle for its colour
@@ -200,13 +196,6 @@ function init(){
     cam.x = grid.width/2;
     cam.y = -20;
     cam.z = 20;
-}
-
-//updates light to have  cartesian (x,y,z)
-function update_light_cartesian(){
-    light.x = Math.sin(zengine.to_rad(light.yaw)) * Math.cos(zengine.to_rad(light.pitch));
-    light.y = Math.cos(zengine.to_rad(light.yaw)) * Math.cos(zengine.to_rad(light.pitch));
-    light.z = Math.sin(zengine.to_rad(light.pitch));
 }
 
 //resizes canvas to fill full screen

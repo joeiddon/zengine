@@ -86,8 +86,8 @@ The `horizon` parameter takes a distance, in units relative to the world, for ho
 The `light` parameter is an object with attributes:
 
 Attribute        | Meaning
------------------|------------------------------------
-`x`, `y`, `z`    | components of direction unit vector
+-----------------|-------------------------------------------
+`yaw, `pitch`    | components of a spherical direction vector
 `min_saturation` | minimum saturation percent
 `min_lightness`  | minimum lightness percent
 

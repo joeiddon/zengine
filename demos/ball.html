@@ -37,9 +37,12 @@ let wireframe = false;
 let cam = {x:0, y:-5, z: 0, yaw: 0, pitch: 0, roll: 0, fov: 60};
 //dapening for mapping mouse movement pixel deltas to rotation deltas
 let dapening = 400;
-//light circle on screen is at (x,y) with radius, r and distance, d
-//it from the ball (in 3d units)
-let light = {r: 32, d: 4, min_saturation: 0, min_lightness: 0.2};
+//tthe light has the normal attributes as well as:
+// - r:   the 2d draggable light circle radius
+// - sf:  the scale factor used when calculatinh the light's angle
+// - x,y: these attributes describe where to render the draggable
+//        circle on the 2d canvas - updated by `light_drag`
+let light = {sf: 2, r: 32, min_saturation: 0, min_lightness: 0.2};
 
 //resize the canvas to the screen
 function fit_to_screen(){
@@ -49,7 +52,6 @@ function fit_to_screen(){
     light.x = cnvs.width / 4;
     light.y = cnvs.height / 4;
     //re-render the ball (as canvas is cleared when resized)
-    update();
 }
 
 //returns the 3d cartesian coordinate at yaw, pitch angles on a unit sphee
@@ -73,26 +75,11 @@ function init_ball(){
     }
 }
 
-//returns the vector of the light from the origin
-function get_light_vect(){
-    let yaw   = (cnvs.width/2 - light.x) * cam.fov / cnvs.width;
-    let pitch = (cnvs.height/2 - light.y) * cam.fov / cnvs.width;
-    let vect = {x:  light.d * Math.tan(zengine.to_rad(yaw)),
-                y: -(cam.y + light.d),
-                z: -light.d * Math.tan(zengine.to_rad(pitch))};
-    //convert to unit vector by dividing by length
-    let mag = zengine.distance(vect, {x: 0, y: 0, z: 0});
-    return {x: vect.x / mag,
-            y: vect.y / mag,
-            z: vect.z / mag,
-            min_saturation: light.min_saturation,
-            min_lightness: light.min_lightness};
-}
-
 //renders the current ball using zengine.js
 function update(){
-    zengine.render(ball, cam, cnvs, wireframe, Infinity, get_light_vect());
+    zengine.render(ball, cam, cnvs, wireframe, Infinity, light);
     draw_circle(light.x, light.y, light.r);
+    requestAnimationFrame(update)
 }
 
 
@@ -100,13 +87,16 @@ function update(){
    START
 **********/
 
+//create faces of the ball
 init_ball();
 //fit the canvas to screen, and tell the browser to automatically do this when
 //the window is resized
-//the fit_to_screen function includes a call to the update function, so the first
-//render of the ball will be done from within the fit_to_screen function
 fit_to_screen();
 window.addEventListener('resize', fit_to_screen);
+//calculate the inital light yaw and pitch angles
+update_light_vect();
+//render first frame
+update();
 
 /*******************
     EVENT HANDLERS
@@ -139,14 +129,13 @@ function ball_drag(e){
     let dx = e.movementX / dapening;
     let dy = e.movementY / dapening;
     rotate_ball(dx, -dy);
-    update();
 }
 
 //handler for dragging of light
 function light_drag(e){
     light.x = e.offsetX;
     light.y = e.offsetY;
-    update();
+    update_light_vect()
 }
 
 /*****************
@@ -169,6 +158,15 @@ function draw_circle(x, y, r){
     ctx.beginPath();
     ctx.arc(x, y, r, 0, Math.PI * 2);
     ctx.stroke();
+}
+
+//takes the 2d (x,y) coordinate of the light and calculates the spherical
+//(yaw, pitch) coordinate
+function update_light_vect(){
+    //calculate by taking offset from centre and then scaling by how many
+    //pixels there are per degree (fov / width)
+    light.yaw = (cnvs.width/2 - light.x) * light.sf * cam.fov / cnvs.width;
+    light.pitch = (cnvs.height/2 - light.y) * -light.sf * cam.fov / cnvs.width;
 }
 
 //returns distance between two 2d coordinates

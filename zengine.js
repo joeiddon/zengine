@@ -19,10 +19,9 @@ let zengine = {
         let ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        //unit vector for cam
-        let cam_vect = {x: Math.sin(this.to_rad(cam.yaw)) * Math.cos(this.to_rad(cam.pitch)),
-                        y: Math.cos(this.to_rad(cam.yaw)) * Math.cos(this.to_rad(cam.pitch)),
-                        z: Math.sin(this.to_rad(cam.pitch))}
+        //create cartesian unit vector representations from polar light and cam vects
+        let cam_vect = this.polar_to_cart(this.to_rad(cam.yaw), this.to_rad(cam.pitch));
+        let light_vect = this.polar_to_cart(this.to_rad(light.yaw), this.to_rad(light.pitch)) || undefined;
 
         //temporary inclusion until all current uses are updated to include unit vects
         let has_vects = world[0].vect != undefined;
@@ -78,7 +77,7 @@ let zengine = {
             ctx.closePath(); ctx.stroke();
             if (!wireframe){
                 if (has_vects){
-                    let angle = -this.dot_prod(light || world[f].c_vect /*cam_vect*/, world[f].vect);
+                    let angle = -this.dot_prod(light_vect || world[f].c_vect /*cam_vect*/, world[f].vect);
                     if (angle < 0) angle = 0;
                     let s = world[f].col.s * (light ? (light.min_saturation+ (1 -light.min_saturation) * angle) : angle);
                     let l = world[f].col.l * (light ? (light.min_lightness + (1 -light.min_lightness ) * angle) : angle);
@@ -104,6 +103,9 @@ let zengine = {
     to_rad: (d) => d * (Math.PI / 180),
     distance: (c1, c2) => ((c2.x - c1.x)**2 + (c2.y - c1.y)**2 + (c2.z - c1.z)**2) ** 0.5,
     dot_prod: (v1, v2) => v1.x * v2.x + v1.y * v2.y + v1.z * v2.z,
+    polar_to_cart: (y, p) => ({x: Math.sin(y) * Math.cos(p),
+                               y: Math.cos(y) * Math.cos(p),
+                               z: Math.sin(p)}),
     cross_prod: (v1, v2) => ({x: v1.y * v2.z - v1.z * v2.y,
                               y: v1.z * v2.x - v1.x * v2.z,
                               z: v1.x * v2.y - v1.y * v2.x}),

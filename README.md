@@ -112,7 +112,7 @@ To actually view each example just visit `https://joeiddon.github.io/zengine/dem
 
 Some bugs that need fixing, but I haven't got around to:
 
-- Proper face ordering - currently done by distance to face centroids.
+- Proper face ordering - currently done by distance to face centroids, should be done by casting a ray through the two faces.
 - Rotation around the x-axis is not right-hand for some reason - probably a dodgy rotation matrix calculation.
 
 ---

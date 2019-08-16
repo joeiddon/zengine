@@ -87,7 +87,7 @@ The `light` parameter is an object with attributes:
 
 Attribute        | Meaning
 -----------------|-------------------------------------------
-`yaw, `pitch`    | components of a spherical direction vector
+`yaw`, `pitch`    | components of a spherical direction vector
 `min_saturation` | minimum saturation percent
 `min_lightness`  | minimum lightness percent
 

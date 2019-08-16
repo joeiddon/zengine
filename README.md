@@ -125,3 +125,5 @@ These are some applications of this library:
 - [maze game](https://joeiddon.github.io/3d_maze_game)
 - [apocalombie](https://joeiddon.github.io/apocalombie)
 - [blocks](https://joeiddon.github.io/blocks)
+
+If you would like to read about these projects more, I have posts on each of them [here on my website](https://joeiddon.github.io/projects/javascript).

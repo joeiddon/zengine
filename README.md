@@ -97,14 +97,14 @@ Where the `min_*` attributes are to be given as decimals in the range `0` to `1`
 
 ### Examples
 
-The [demo folder](https://github.com/demos/zengine/tree/master/demos) contains example code. You can view the code either by cloning this whole repository with
+The [demo folder](https://github.com/joeiddon/zengine/tree/master/demos) contains example code. You can view the code either by cloning this whole repository with
 
 ```shell
 git clone https://github.com/joeiddon/zengine.git
 ```
-or just use the GitHub webapp.
+or just use the GitHub web app.
 
-To actually view each example just visit `https://joeiddon.github.io/zengine/demos`.
+To actually view each example, host locally, or view in GitHub Pages [here](https://joeiddon.github.io/zengine/demos).
 
 ---
 
@@ -119,9 +119,9 @@ Some bugs that need fixing, but I haven't got around to:
 
 ### Uses
 
-These are some links to uses of this library:
+These are some applications of this library:
 
-- [the demos](https://joeiddon.github.io/demos)
+- [the demos](https://joeiddon.github.io/zengine/demos)
 - [maze game](https://joeiddon.github.io/3d_maze_game)
 - [apocalombie](https://joeiddon.github.io/apocalombie)
 - [blocks](https://joeiddon.github.io/blocks)
